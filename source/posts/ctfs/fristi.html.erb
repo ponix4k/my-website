@@ -1,0 +1,120 @@
+---
+layout: blog_post
+---
+Fristileaks Write-up
+Posted on April 3, 2019 by ponix
+
+This write up is for the FristiLeaks Box from VulnHub
+
+this was the box chosen for the MGH CTF
+
+Step 1. Enumeration (Initial information gathering)
+
+first thing we need to do is find out more about the box one of the ways to do this is using a port scanner to check what ports are open this might tell us more about what it is we are dealing with.
+
+when the box is booted in in virtual box the ip address of the target is displayed on the “screen” along with some instructions
+
+First of all we can start off with a port scan to try and get some information about the Box that we are looking at.
+
+This information will be important in deciding on how we might be able to get onto the box , There are a few common ports that we can look at (21:FTP 22:SSH 23:Telnet 25:SMTP 80:HTTP) to give us a starting point.
+
+on the default kali install there is a port scanner called nmap to run this you just need to open up the terminal and type nmap and the target ip
+
+ nmap 192.168.56.101
+
+This scan gives us the following results:
+Basic nmap scan results
+
+from this we can see that port 80 is open and as we discussed earlier this the HTTP port which would indicate that there is most likely a web server running.
+
+so lets get some more information on this by running nmap with flags -sC and -sV this will run the ‘Script Scan'(-sC) and check versions (-sV) of the services are running this is useful for identifying if there are any services that are older and maybe not patched for known vulnerabilities. we can also output the results to a file buy running the -oN flag and a file name.
+
+nmap -sC -sV 192.168.56.101 -oN Fristi
+
+which gives us the following information.
+
+looks like there are some pages in the robots.txt file these might be worth a look later on once we have poked around the initial page .
+
+Step 2. Visiting the site
+
+after putting the ip of the machine into the url field on the browser we are greeted with this page:
+http://192.168.56.101
+
+not a lot of information on the page except that ‘Frisi’ is a drink . so lets have a look at the page source
+
+not a great deal here either but in the nmap scan results the robots.txt listed the following directories /cola /sisi /beer . so if we append the directory name to the end of the ip we might get some more information
+
+Each one of the drink related directories gives us this page and nothing in the source . but we know from the inital page that fristi is a drink too so lets give that a shot.
+
+great stuff we have a login page but no creds . so lets have a look at the source to see if there is any interesting information in there.
+
+in the <head> tags of the page there are two things like they might be useful a desctipion :
+
+`<content="super leet password login-test page. We use base64 encoding for images so they are inline in the HTML. I read somewhere on the web, that thats a good way to do it.">`
+
+and a html comment that is signed off by a potential user ‘eezeepz’
+
+<!--  TODO: We need to clean this up for production. I left some junk in here to make testing easier. - by eezeepz -->
+
+the next thing on the source is a massive string of text but based on the information how the <img src=”data:img/png;base64… tag starts it looks to be a base64 encoded image . so we can scroll past this underneath this is another html comment with what looks to be a base64 encoded string . so lest copy this into a file and convert it .
+
+nano b64text 
+
+and then paste the string in and Ctrl + x to save the file. once we have done this we need to decode the string you can do this by issuing the following command in the terminal
+
+cat b64text | base64 -d  > outputfile
+
+once we have the output file we can find out what the actual file type is by running the file command against the ‘outputfile’ like this:
+
+using the mv command we can add .png extension to the output file and the open the file in the file browser mv outputfile outputfile.png 
+
+once we open the file we are met with a string of text that could be a possible password as the comments earlier suggest that base64 encoding things is: ‘super leet password login-test page. We use base64 encoding’
+
+Stage 3. Logging in and getting an inital foothold
+
+now that we have some possible credentials its time to give them a try .
+
+Sucess this login info worked and with a simple file upload page
+
+based on the text on the button this will filter anything that isn’t an image
+
+attempting to upload a php reverse shell from http://pentestmonkey.net/tools/php-reverse-shell configured with the local IP of the attacking machine and the port that the response will come through on
+
+Once the php is configured the the listener needs to be set up to listen on the same port using the following command
+
+nc -lvp 9001
+
+this will catch the shell once the php is run
+
+upon trying to upload a reverse shell php file from called s.php the site responds with the following error message:
+
+
+It might be possible to get around this with a “Double Extention” so if file name of the shell is changed to s.php.png the file might upload depending on how the uploader is checking the file type.
+upload sucsessful
+
+lets navigate to the ../uploads/s.php.png to activate the reverse shell
+and then check the listener to see if the php executed and started the reverse shell
+shell is running as the apache users
+
+now that an initial foothold has been established its time to look for a way to get some kind of persistence just in case the session gets disconnected.
+
+it is possible to upload any file type now using the python module ‘SimpleHTTPServer’ and wget to pull the file onto the target.
+
+by navigating to the webserver directory on the target machine(/var/www/html/fristi/uploads) and the on the attacking machine navigate to the directory that the files stored in then run the command to start the webserverpython -m SimpleHTTPServer 8081 
+and then on the target machine run the wget command to download the file
+
+so navigating to the ../uploads/full_shell.php will run the full shell php (which has tab complete)
+
+Step 4 Local enumeration
+
+so now that the initial foothold has been established its time to see what is accessible . firstly find out what user the shell is running as by typing whoami this returns the username Apache which makes sense as that’s most likely the user that runs the web server.
+
+after checking the /var/www directory seeing what other sites are hosted on the system there is a notes.txt file in the directory the file contains the following text. hey eezeepz your homedir is a mess, go clean it up, just dont delete the important stuff. -jerry
+
+eezeepz was the user that was used to log into the uploads section . checking what information is in the /home/eezeepz/
+
+there is also a notes.txt in the home folder that contains the following information.
+
+`Yo EZ, I made it possible for you to do some automated checks, but I did only allow you access to /usr/bin/* system binaries. I did however copy a few extra often needed commands to my homedir: chmod, df, cat, echo, ps, grep, egrep so you can use those from /home/admin/ Don't forget to specify the full path for each binary! Just put a file called "runthis" in /tmp/, each line one command. The output goes to the file "cronresult" in /tmp/. It should run every minute with my account privileges. - Jerry
+
+this means what ever comand is in the runthis file it will 

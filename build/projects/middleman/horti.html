@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Johnze.co.uk Blog</title>
+       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/590df6078a.js" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"  crossorigin="anonymous"></script>    
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<style>
+		/* Add custom styles here */
+	</style>
+</head>
+<body class="bg-secondary bg-gradient">
+  
+<nav class="navbar navbar-expand-lg navbar-dark bg-info">
+  <a class="navbar-brand">
+    <img src="/images/moon.png" width="45" height="30" alt="Image of a moon" class="d-inline-block align-top" />
+    <a href="/" class="nav-link text-light" style="text-decoration:none;">Project Moonrope</a>
+  </a>
+  <ul class="nav nav-pills nav-fill">
+    <li class="nav-item"><a><a href="/projects/" class="nav-link text-secondary">Projects</a></a></li>
+    <li class="nav-item"><a></a></li>
+  </ul>
+</nav>
+  <div class="container-fluid"> 
+    <style>
+ .project-card {
+    margin-top: 20px;
+    position: relative;
+    isolation: isolate;
+    width: 425px;
+    height: 225px;
+    background-color: #1d1d1f;
+    border-radius: 8px;
+  }
+
+  .project-card-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-position: 0 20%;
+    border-radius: inherit;
+    transition: transform 250ms;
+    background-color: #6c6c6c;
+  }
+
+  .pi-text {
+    display: grid;
+    justify-items: center;
+    padding-top: 22%;
+    font-size: 2rem;
+    text-transform: uppercase;
+  }
+
+  .project-card:hover .project-card-image {
+    transform: translateX(225px) scale(0.15);
+  }
+
+  .project-card-body {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: flex;
+    padding: 24px;
+    color: #f4c644;
+  }
+
+  .project-card-category {
+    color: #efefef;
+  }
+
+  .project-card-button {
+    position: absolute;
+    z-index: -1;
+    bottom: 15px;
+    right: 15px;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    background-color: #f4c644;
+    color: #000;
+  }
+</style>
+
+<div class="project-card">
+  <div class="project-card-image"><div class="pi-text"></div></div>
+  <div class="project-card-body">
+    <h2 class="project-card-category">Horti</h2>
+    <p class="project-card-short-description">A static page to show information about various trees and plants</p><br>
+    <p class="">Status: Work in progress</p><br>
+    <p class="">Last Update: 2022-12-01</p>
+
+    <a href="https://github.com/ponix4k/horti" class="project-card-button">> here <</a>
+  </div>
+</div>
+  </div>
+</body>
+</html>
